@@ -7,6 +7,25 @@
 	lf = "!f() { git diff --name-only HEAD~$1..HEAD; }; f"
 	peek = "!f() { git log --oneline -n ${1:-5}; }; f"
 	checkpoint = "!f() { last_msg=\"$(git log -1 --pretty=%B)\"; if [ \"$last_msg\" = \"checkpoint\" ]; then git add . && git commit --amend --no-edit; else git add . && git commit -m \"checkpoint\"; fi; }; f"
+	eject = "!f() { \
+        ref=${1:-HEAD}; \
+        commit=$(git rev-parse $ref); \
+        short_sha=$(git rev-parse --short $commit); \
+        current_branch=$(git symbolic-ref --short HEAD); \
+        has_changes=$(git status --porcelain); \
+        if [ ! -z \"$has_changes\" ]; then \
+            git stash push -m \"eject-temp-stash\"; \
+        fi; \
+        git fetch origin main; \
+        branch_name=\"mawildoer/$short_sha\"; \
+        git checkout -b $branch_name origin/main; \
+        git cherry-pick $commit; \
+        git push -u origin $branch_name; \
+        git checkout $current_branch; \
+        if [ ! -z \"$has_changes\" ]; then \
+            git stash pop; \
+        fi; \
+    }; f"
 
 [push]
 	autoSetupRemote = true
