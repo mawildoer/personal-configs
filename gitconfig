@@ -26,6 +26,19 @@
             git stash pop; \
         fi; \
     }; f"
+	wt = "!f() { \
+        if [ -z \"$1\" ]; then \
+            echo \"Usage: git wt <name>\"; \
+            exit 1; \
+        fi; \
+        name=$1; \
+        git_root=$(cd \"$(git rev-parse --git-common-dir)\" && pwd); \
+        branch_prefix=$(git config --get custom.branchPrefix 2>/dev/null || true); \
+        branch_name=\"$branch_prefix$name\"; \
+        wt_dir=\"$git_root/forest/$name\"; \
+        git worktree add -b \"$branch_name\" \"$wt_dir\"; \
+        env -u GIT_DIR cursor \"$wt_dir\"; \
+    }; f"
 
 [push]
 	autoSetupRemote = true
