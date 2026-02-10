@@ -37,7 +37,7 @@
         branch_name=\"$branch_prefix$name\"; \
         wt_dir=\"$git_root/forest/$name\"; \
         git worktree add -b \"$branch_name\" \"$wt_dir\"; \
-        env -u GIT_DIR cursor \"$wt_dir\"; \
+        echo \"$wt_dir\"; \
     }; f"
 
 [push]
