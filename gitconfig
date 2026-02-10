@@ -39,6 +39,27 @@
         git worktree add -b \"$branch_name\" \"$wt_dir\"; \
         echo \"$wt_dir\"; \
     }; f"
+	compose = "!f() { \
+        if [ $# -lt 2 ]; then \
+            echo \"Usage: git compose <repo_path>... <name>\"; \
+            exit 1; \
+        fi; \
+        repos=; \
+        while [ $# -gt 1 ]; do \
+            repos=\"$repos $1\"; \
+            shift; \
+        done; \
+        name=$1; \
+        branch_prefix=$(git config --global --get custom.branchPrefix 2>/dev/null || true); \
+        branch_name=\"$branch_prefix$name\"; \
+        composed_dir=\"$PWD/$name\"; \
+        mkdir -p \"$composed_dir\"; \
+        for repo in $repos; do \
+            wt_name=$(basename \"$repo\" | sed 's/\\.git$//'); \
+            git -C \"$repo\" worktree add -b \"$branch_name\" \"$composed_dir/$wt_name\"; \
+        done; \
+        echo \"$composed_dir\"; \
+    }; f"
 
 [push]
 	autoSetupRemote = true
